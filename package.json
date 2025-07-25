@@ -14,6 +14,7 @@
     "plasmo": "0.90.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-router-dom": "^7.7.1",
     "tailwindcss": "3.4.1"
   },
   "devDependencies": {
@@ -28,7 +29,6 @@
   },
   "manifest": {
     "key": "$CRX_PUBLIC_KEY",
-
     "permissions": [
       "cookies",
       "storage"
@@ -38,6 +38,5 @@
       "$PLASMO_PUBLIC_CLERK_SYNC_HOST/*",
       "$CLERK_FRONTEND_API/*"
     ]
-
   }
 }
