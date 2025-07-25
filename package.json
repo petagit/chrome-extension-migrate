@@ -6,7 +6,8 @@
   "author": "Clerk",
   "scripts": {
     "build:background": "pnpm plasmo build:background",
-    "build": "plasmo build",
+    "build": "next build",
+    "build:extension": "plasmo build",
     "dev": "plasmo dev",
     "start": "next start",
     "lint": "next lint"
