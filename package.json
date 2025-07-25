@@ -5,16 +5,33 @@
   "description": "A basic implementation of Clerk with a Plasmo-based Chrome Extension.",
   "author": "Clerk",
   "scripts": {
-    "dev": "plasmo dev",
+    "build:background": "pnpm plasmo build:background",
     "build": "plasmo build",
-    "package": "plasmo package"
+    "dev": "plasmo dev",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/backend": "^2.5.0",
     "@clerk/chrome-extension": "^2.0.0",
+    "@clerk/nextjs": "^6.25.4",
+    "@prisma/client": "^6.12.0",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-slot": "^1.2.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.525.0",
+    "next": "^15.4.1",
+    "openai": "^5.10.1",
     "plasmo": "0.90.3",
+    "prisma": "^6.12.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react-dom": "19.00",
+    "react-hot-toast": "^2.5.2",
+    "react-router": "^7.7.0",
     "react-router-dom": "^7.7.1",
+    "sonner": "^2.0.6",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "3.4.1"
   },
   "devDependencies": {
@@ -26,6 +43,9 @@
     "postcss": "8.4.33",
     "prettier": "3.2.4",
     "typescript": "5.3.3"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   },
   "manifest": {
     "key": "$CRX_PUBLIC_KEY",

@@ -1,0 +1,59 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "darwin-arm64", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp"), pg_graphql(), pg_stat_statements(), pgcrypto(), pgjwt(), supabase_vault()]
+}
+
+model Subscription {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String    @map("user_id")
+  status               String    @default("Free")
+  stripeCustomerId     String?   @map("stripe_customer_id")
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  priceId              String?   @map("price_id")
+  currentPeriodEnd     DateTime? @map("current_period_end") @db.Timestamptz(6)
+  createdAt            DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([userId], map: "idx_subscriptions_user_id")
+  @@map("subscriptions")
+}
+
+model UserSubscription {
+  id              String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  userId          String   @map("user_id")
+  serviceName     String   @map("service_name")
+  startDate       DateTime @map("start_date") @db.Timestamp(6)
+  endDate         DateTime @map("end_date") @db.Timestamp(6)
+  status          String   @default("active")
+  price           Decimal? @db.Decimal(10, 2)
+  billingCycle    String?  @map("billing_cycle")
+  category        String?
+  cancellationUrl String?  @map("cancellation_url")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([userId], map: "idx_user_subscriptions_user_id")
+  @@map("user_subscriptions")
+}
+
+model SubscriptionService {
+  id               String   @id @default(uuid()) @db.Uuid // Make sure uuid-ossp extension is handled
+  name             String   @unique
+  category         String
+  description      String?
+  monthlyPrice     Decimal? @map("monthly_price") @db.Decimal(10, 2)
+  annualPrice      Decimal? @map("annual_price") @db.Decimal(10, 2)
+  notes            String?
+  stars            Int?     @default(0)
+  cancellationLink String?  @map("cancellation_link")
+
+  @@index([category])
+  @@map("subscription_services")
+}
