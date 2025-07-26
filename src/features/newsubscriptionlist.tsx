@@ -150,8 +150,43 @@ const NewSubscriptionList = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-lg">Loading your subscriptions...</p>
+      <div className="flex flex-col items-center justify-center h-full p-16 bg-gray-50 w-full">
+        <div className="mb-6">
+          <svg
+            className="animate-spin"
+            width="40"
+            height="40"
+            viewBox="0 0 40 40"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              className="opacity-25"
+              cx="20"
+              cy="20"
+              r="18"
+              stroke="#9CA3AF" // Tailwind gray-400
+              strokeWidth="4"
+              fill="none"
+            />
+            <circle
+              className="opacity-75"
+              cx="20"
+              cy="20"
+              r="18"
+              stroke="#6B7280" // Tailwind gray-500
+              strokeWidth="4"
+              strokeDasharray="90"
+              strokeDashoffset="60"
+              strokeLinecap="round"
+              fill="none"
+            />
+          </svg>
+        </div>
+        <p className="text-xl font-semibold text-gray-700">
+          Loading your subscriptions...
+        </p>
+        <p className="text-base text-gray-500">Please wait a moment.</p>
       </div>
     )
   }
@@ -198,44 +233,68 @@ const NewSubscriptionList = ({
             </select>
           </div>
         </div>
-        <ul>
-          <li className="flex items-center justify-between py-3 border-b font-bold">
-            <div className="flex-1">Service</div>
-            <div className="flex-1 text-center">Price</div>
-            <div className="flex-1 text-center">Next Billing</div>
-            <div className="flex-1 text-center">Category</div>
-            <div className="w-20"></div> {/* Placeholder for buttons */}
-          </li>
-          {subscriptions.map((sub) => (
-            <li
-              key={sub.id}
-              className="flex items-center justify-between py-3 border-b last:border-b-0">
-              <div className="flex items-center flex-1">
-                <div>
-                  <p className="font-bold">{sub.serviceName}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-600 flex-1 justify-center">
-                <span>${Number(sub.price).toFixed(2)}/mo</span>
-              </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-600 flex-1 justify-center">
-                <span>
-                  {new Date(sub.endDate).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-600 flex-1 justify-center">
-                <span>{sub.category}</span>
-              </div>
-              <div className="flex items-center space-x-2 w-20">
-                <button
-                  onClick={() => handleDeleteSubscription(sub.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold">
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-white">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-sm font-bold text-gray-900">
+                  Service
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-sm font-bold text-gray-900">
+                  Price
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-sm font-bold text-gray-900">
+                  Next Billing
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-sm font-bold text-gray-900">
+                  Category
+                </th>
+                <th scope="col" className="relative px-6 py-3">
+                  <span className="sr-only">Delete</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {subscriptions.map((sub) => (
+                <tr key={sub.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-bold text-gray-900">
+                      {sub.serviceName}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      ${Number(sub.price).toFixed(2)}/mo
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {new Date(sub.endDate).toLocaleDateString()}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {sub.category}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleDeleteSubscription(sub.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Bottom Banner */}
@@ -261,7 +320,7 @@ const NewSubscriptionList = ({
         </p>
         <div className="flex space-x-4">
           <AddSubscriptionDialog onSubscriptionAdded={() => setRefresh(!refresh)} />
-          <BillUploadDialog onSubscriptionsAdded={() => setRefresh(!refresh)} disabled={true} />
+          <BillUploadDialog onSubscriptionsAdded={() => setRefresh(!refresh)} disabled={false} />
         </div>
       </div>
     </div>

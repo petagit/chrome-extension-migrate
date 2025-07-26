@@ -66,6 +66,19 @@ class CancelMySubsAPI {
     }
     return response.json()
   }
+
+  async detectSubscriptions(formData: FormData) {
+    const response = await fetch(`${API_URL}/api/detect-subscriptions`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to detect subscriptions from API');
+    }
+    return response.json();
+  }
 }
 
-export default new CancelMySubsAPI() 
+const api = new CancelMySubsAPI()
+
+export default api 

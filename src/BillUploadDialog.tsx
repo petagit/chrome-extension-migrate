@@ -75,17 +75,15 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('http://localhost:3000/api/detect-subscriptions', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) {
-        throw new Error('Failed to detect subscriptions');
-      }
-      const data = await res.json();
+      const data = await api.detectSubscriptions(formData);
+
       let detected: Match[] = [];
-      const matchesArr: any[] = Array.isArray(data.matches) ? data.matches : [];
-      const itemsArr: any[] = Array.isArray(data.items) ? data.items : [];
+      const matchesArr: Match[] = (Array.isArray(data.matches) ? data.matches : []).filter(
+        (m): m is Match => m && typeof m.name === 'string'
+      );
+      const itemsArr: any[] = (Array.isArray(data.items) ? data.items : []).filter(
+        (i) => i && typeof i.name === 'string'
+      );
 
       if (matchesArr.length > 0) {
         detected = matchesArr;
@@ -133,7 +131,7 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
           category: sub.category,
           cancellationUrl: sub.cancellationLink,
         };
-        await api.addSubscription(payload as any);
+        await api.addSubscription({ ...payload, userId: user.id });
       }
       toast.success(`${toAdd.length} subscriptions added`);
       setDialogOpen(false);

@@ -44,16 +44,10 @@ model UserSubscription {
 }
 
 model SubscriptionService {
-  id               String   @id @default(uuid()) @db.Uuid // Make sure uuid-ossp extension is handled
-  name             String   @unique
+  id               String  @id @default(dbgenerated("(gen_random_uuid())::text"))
+  name             String  @unique
   category         String
-  description      String?
-  monthlyPrice     Decimal? @map("monthly_price") @db.Decimal(10, 2)
-  annualPrice      Decimal? @map("annual_price") @db.Decimal(10, 2)
-  notes            String?
-  stars            Int?     @default(0)
-  cancellationLink String?  @map("cancellation_link")
+  cancellationLink String? @map("cancellation_link")
 
-  @@index([category])
   @@map("subscription_services")
 }
