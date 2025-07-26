@@ -44,9 +44,6 @@ export const RootLayout = () => {
         </main>
         <footer>
           <SignedOut>
-            <Link to="/">Home</Link>
-            <Link to="/sign-in">Sign In</Link>
-            <Link to="/sign-up">Sign Up</Link>
           </SignedOut>
         </footer>
       </div>

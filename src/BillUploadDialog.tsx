@@ -39,6 +39,7 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useUser();
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (!dialogOpen) return;
@@ -67,6 +68,35 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
       document.removeEventListener('paste', handlePaste);
     };
   }, [dialogOpen, file, matches.length]);
+
+  const handleFile = (file: File | null) => {
+    if (file) {
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        toast.error('Invalid file type. Please upload an image or PDF.');
+        return;
+      }
+      setFile(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleDetect = async () => {
     if (!file) return;
@@ -113,6 +143,11 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
   };
 
   const handleAdd = async () => {
+    if (!user) {
+      toast.error('You must be signed in to add subscriptions.');
+      return;
+    }
+
     const toAdd = matches.filter((m) => selected[m.name]);
     if (toAdd.length === 0) {
       toast.info('No subscriptions selected');
@@ -131,7 +166,7 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
           category: sub.category,
           cancellationUrl: sub.cancellationLink,
         };
-        await api.addSubscription({ ...payload, userId: user.id });
+        await api.addSubscription(payload);
       }
       toast.success(`${toAdd.length} subscriptions added`);
       setDialogOpen(false);
@@ -168,13 +203,27 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
 
         {/* File input */}
         {!file && (
-          <Input
-            type="file"
-            accept="image/*,application/pdf"
-            ref={fileRef}
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="bg-white"
-          />
+          <div
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+            ${dragActive ? 'border-purple-600 bg-purple-50' : 'border-gray-300'}`}
+          >
+            <Input
+              type="file"
+              accept="image/*,application/pdf"
+              ref={fileRef}
+              onChange={(e) => handleFile(e.target.files?.[0] || null)}
+              className="hidden"
+              id="file-upload"
+            />
+            <label htmlFor="file-upload" className="cursor-pointer">
+              <p>Drag & drop your file here, or click to select a file.</p>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF or PDF</p>
+            </label>
+          </div>
         )}
 
         {/* Preview shown only before detection results */}
@@ -213,19 +262,22 @@ export function BillUploadDialog({ onSubscriptionsAdded, disabled, triggerClassN
                 </tr>
               </thead>
               <tbody>
-                {matches.map((m) => (
-                  <tr key={m.name} className="border-b last:border-none">
-                    <td className="px-2 py-1">
-                      <input
-                        type="checkbox"
-                        checked={selected[m.name]}
-                        onChange={(e) => setSelected({ ...selected, [m.name]: e.target.checked })}
-                      />
-                    </td>
-                    <td className="px-2 py-1">{m.name}</td>
-                    <td className="px-2 py-1">{m.amountUSD !== undefined && m.amountUSD !== null ? `$${m.amountUSD.toFixed(2)}` : '-'}</td>
-                  </tr>
-                ))}
+                {matches.map((m, index) => {
+                  const amount = m.amountUSD !== null && m.amountUSD !== undefined ? Number(m.amountUSD) : NaN;
+                  return (
+                    <tr key={`${m.name}-${index}`} className="border-b last:border-none">
+                      <td className="px-2 py-1">
+                        <input
+                          type="checkbox"
+                          checked={!!selected[m.name]}
+                          onChange={(e) => setSelected({ ...selected, [m.name]: e.target.checked })}
+                        />
+                      </td>
+                      <td className="px-2 py-1">{m.name}</td>
+                      <td className="px-2 py-1">{!isNaN(amount) ? `$${amount.toFixed(2)}` : '-'}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
